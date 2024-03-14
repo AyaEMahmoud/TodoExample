@@ -6,12 +6,15 @@
 //
 
 import UIKit
+import CoreData
 
 class TodoListViewController: UITableViewController {
     
     var todoItems: [Item] = [Item]()
     
     let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("items.plist", conformingTo: .propertyList)
+    
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,7 +63,7 @@ class TodoListViewController: UITableViewController {
         }
         
         let action = UIAlertAction(title: "Add Item", style: .default) { action in
-            let newItem = Item()
+            let newItem = Item(context: self.context)
             newItem.title = textField.text ?? ""
             newItem.done = false
             self.todoItems.append(newItem)
@@ -74,28 +77,15 @@ class TodoListViewController: UITableViewController {
     }
     
     func saveData() {
-       let encoder = PropertyListEncoder()
         do {
-            let data = try encoder.encode(todoItems)
-            try data.write(to: dataFilePath!)
+            try context.save()
         } catch {
-            print("Could not encode data to file \(error)")
+            print("Could not save data to coreData DB \(error)")
         }
         tableView.reloadData()
     }
     
     func loadData() {
-        if let data = try? Data(contentsOf: dataFilePath!) {
-            let decoder = PropertyListDecoder()
-            do {
-                //Swift here is unable to reliably inferr the data type, we have to write the data type
-                //And because we are not specifing object, in order to refer to the type that is array of items we have to also write self.
-                
-                todoItems = try decoder.decode([Item].self, from: data)
-            } catch {
-                print("Could not decode data as \(error)")
-            }
-        }
        
         tableView.reloadData()
     }
