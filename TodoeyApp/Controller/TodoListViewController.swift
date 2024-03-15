@@ -42,6 +42,8 @@ class TodoListViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+
+        //Add Delete operation
         
         todoItems[indexPath.row].done = !todoItems[indexPath.row].done
         saveData()
@@ -77,6 +79,9 @@ class TodoListViewController: UITableViewController {
         
     }
     
+    // MARK: CRUD operations to CoreData DB
+    
+    //Create
     func saveData() {
         do {
             try context.save()
@@ -86,6 +91,7 @@ class TodoListViewController: UITableViewController {
         tableView.reloadData()
     }
     
+    //Read
     func loadData() {
         let fetchRequest: NSFetchRequest<Item> = Item.fetchRequest()
         do {
@@ -95,4 +101,18 @@ class TodoListViewController: UITableViewController {
         }
         tableView.reloadData()
     }
+    
+    //Update
+    func updateData(at index: Int) {
+        todoItems[index].setValue(true, forKey: "done")
+        saveData()
+    }
+    
+    //Delete
+    func deleteData(at index: Int) {
+        context.delete(todoItems[index])
+        todoItems.remove(at: index)
+        saveData()
+    }
+    
 }
