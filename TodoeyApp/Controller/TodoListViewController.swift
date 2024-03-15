@@ -116,3 +116,31 @@ class TodoListViewController: UITableViewController {
     }
     
 }
+
+// MARK: Search bar Delegate
+
+extension TodoListViewController: UISearchBarDelegate {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        
+        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", argumentArray: [searchBar.text!])
+        
+        request.predicate = predicate
+        
+        let sortDiscriptor = NSSortDescriptor(key: "title", ascending: true)
+        
+        request.sortDescriptors = [sortDiscriptor]
+        
+        do {
+           todoItems = try context.fetch(request)
+        } catch {
+            print("Couldn't query the coreData DB \(error)")
+        }
+        
+        tableView.reloadData()
+        
+    }
+}
+
