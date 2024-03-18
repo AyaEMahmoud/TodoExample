@@ -10,7 +10,13 @@ import CoreData
 
 class TodoListViewController: UITableViewController {
     
-    var todoItems: [Item] = [Item]()
+    var todoItems = [Item]()
+    
+    var selectedCategory: Category? {
+        didSet {
+            loadData()
+        }
+    }
     
     let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("items.plist", conformingTo: .propertyList)
     
@@ -19,7 +25,6 @@ class TodoListViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
-        loadData()
     }
     
     override func tableView(_ tableView: UITableView,
@@ -69,9 +74,9 @@ class TodoListViewController: UITableViewController {
             let newItem = Item(context: self.context)
             newItem.title = textField.text ?? ""
             newItem.done = false
+            newItem.parentCategory = self.selectedCategory
             self.todoItems.append(newItem)
             self.saveData()
-            self.tableView.reloadData()
         }
         
         alert.addAction(action)
@@ -92,10 +97,19 @@ class TodoListViewController: UITableViewController {
     }
     
     //Read
-    func loadData() {
-        let fetchRequest: NSFetchRequest<Item> = Item.fetchRequest()
+    func loadData(with request: NSFetchRequest<Item> = Item.fetchRequest(), and predicate: NSPredicate? = nil) {
+        
+        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
+        
+        if let searchPredicate = predicate {
+            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate,
+                                                                                   searchPredicate])
+        } else {
+            request.predicate = categoryPredicate
+        }
+        
         do {
-           todoItems = try context.fetch(fetchRequest)
+           todoItems = try context.fetch(request)
         } catch {
             print("Coudn't fetch data from context \(error)")
         }
@@ -133,11 +147,7 @@ extension TodoListViewController: UISearchBarDelegate {
         
         request.sortDescriptors = [sortDiscriptor]
         
-        do {
-           todoItems = try context.fetch(request)
-        } catch {
-            print("Couldn't query the coreData DB \(error)")
-        }
+        loadData(with: request, and: predicate)
         
         tableView.reloadData()
         
@@ -146,6 +156,8 @@ extension TodoListViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchBar.text?.count == 0 {
             loadData()
+            
+            // Grapping the main queue to dismiss kb even if background tasks are still being completed.
             
             DispatchQueue.main.async {
                 searchBar.resignFirstResponder()
