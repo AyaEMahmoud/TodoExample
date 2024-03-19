@@ -7,10 +7,12 @@
 
 import UIKit
 import CoreData
+import RealmSwift
 
 class CategoryTableViewController: UITableViewController {
 
-    var categoris = [Category]()
+    let realm = try! Realm()
+    var categoris: Results<Category>?
     
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
@@ -31,14 +33,14 @@ class CategoryTableViewController: UITableViewController {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
         
-        cell.textLabel?.text = categoris[indexPath.row].name
+        cell.textLabel?.text = categoris?[indexPath.row].name ?? "No categories added yet"
         
         return cell
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return categoris.count
+        return categoris?.count ?? 1
     }
 
     // MARK: - Table View Delegate
@@ -50,7 +52,7 @@ class CategoryTableViewController: UITableViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         let destinationVC = segue.destination as! TodoListViewController
         if let indexPath = tableView.indexPathForSelectedRow {
-            destinationVC.selectedCategory = self.categoris[indexPath.row]
+            destinationVC.selectedCategory = self.categoris?[indexPath.row]
         }
     }
     
@@ -67,10 +69,9 @@ class CategoryTableViewController: UITableViewController {
         }
         
         let action = UIAlertAction(title: "Add", style: .default) { action in
-            let category = Category(context: self.context)
+            let category = Category()
             category.name = textFeild.text ?? ""
-            self.categoris.append(category)
-            self.saveData()
+            self.save(category: category)
         }
         
         alert.addAction(action)
@@ -79,9 +80,11 @@ class CategoryTableViewController: UITableViewController {
     }
     
     
-    func saveData() {
+    func save(category: Category) {
         do {
-            try context.save()
+            try realm.write {
+                realm.add(category)
+            }
         } catch {
             print("Could not persist data to perminant stoage \(error)")
         }
@@ -89,12 +92,9 @@ class CategoryTableViewController: UITableViewController {
     }
     
     func loadData() {
-        let request: NSFetchRequest<Category> = Category.fetchRequest()
-        do {
-           categoris = try context.fetch(request)
-        } catch {
-            print("Couldn't fetch request from store \(error)")
-        }
+       
+        categoris = realm.objects(Category.self)
+      
         tableView.reloadData()
     }
     
