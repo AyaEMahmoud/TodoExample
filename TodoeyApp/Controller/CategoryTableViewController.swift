@@ -6,8 +6,8 @@
 //
 
 import UIKit
-import CoreData
 import RealmSwift
+import SwipeCellKit
 
 class CategoryTableViewController: UITableViewController {
 
@@ -29,8 +29,8 @@ class CategoryTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
-        
+        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath) as! SwipeTableViewCell
+        cell.delegate = self
         cell.textLabel?.text = categoris?[indexPath.row].name ?? "No categories added yet"
         
         return cell
@@ -39,6 +39,10 @@ class CategoryTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
         return categoris?.count ?? 1
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 80.0
     }
 
     // MARK: - Table View Delegate
@@ -95,6 +99,34 @@ class CategoryTableViewController: UITableViewController {
       
         tableView.reloadData()
     }
+}
+
+
+// MARK: - SwipeTableViewCellDelegate
+
+extension CategoryTableViewController: SwipeTableViewCellDelegate {
     
-    
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> [SwipeAction]? {
+        guard orientation == .right else { return nil }
+
+        let deleteAction = SwipeAction(style: .destructive, title: "Delete") { action, indexPath in
+            // handle action by updating model with deletion
+            
+            if let deletedCategory = self.categoris?[indexPath.row] {
+                do {
+                    try self.realm.write {
+                        self.realm.delete(deletedCategory)
+                    }
+                } catch {
+                    print("Could not delete category \(error)")
+                }
+                tableView.reloadData()
+            }
+        }
+
+        // customize the action appearance
+        deleteAction.image = UIImage(named: "delete-icon")
+
+        return [deleteAction]
+    }
 }
