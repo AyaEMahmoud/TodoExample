@@ -7,9 +7,11 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
-class TodoListViewController: UITableViewController {
+class TodoListViewController: SwipeTableViewController {
     
+    @IBOutlet weak var searchBar: UISearchBar!
     var todoItems: Results<Item>?
     
     let realm = try! Realm()
@@ -22,7 +24,21 @@ class TodoListViewController: UITableViewController {
         
     override func viewDidLoad() {
         super.viewDidLoad()
-        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        guard let navBar = navigationController?.navigationBar else { fatalError("Nav bar is nil at this time point")}
+
+        if let bgColor = selectedCategory?.bgColor {
+            if let navBarColor = UIColor(hexString: bgColor) {
+                navBar.backgroundColor = navBarColor
+                navBar.tintColor = ContrastColorOf(navBarColor, returnFlat: true)
+                navBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: ContrastColorOf(navBarColor, returnFlat: true)]
+                searchBar.barTintColor = navBarColor
+            }
+        }
+        title = selectedCategory?.name ?? ""
+
     }
     
     override func tableView(_ tableView: UITableView,
@@ -33,18 +49,25 @@ class TodoListViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView,
                             cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "TodoItemCell",
-                                                 for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         
         if let item = todoItems?[indexPath.row] {
             cell.textLabel?.text = todoItems?[indexPath.row].title
             cell.accessoryType = item.done ? .checkmark : .none
+            
+            cell.backgroundColor = UIColor(hexString: selectedCategory?.bgColor ?? "000000")?
+                .darken(byPercentage: CGFloat(indexPath.row) / CGFloat(todoItems!.count))
+            cell.textLabel?.textColor = ContrastColorOf(cell.backgroundColor ?? .black, returnFlat: true)
 
         } else {
             cell.textLabel?.text = "No Items Added"
         }
         
         return cell
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 80.0
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -55,8 +78,6 @@ class TodoListViewController: UITableViewController {
                 try realm.write {
                     item.done = !item.done
                 }
-                //delete data in realm
-//                realm.delete(item)
             } catch {
                 print("Could not update data in realm \(error)")
             }
@@ -83,7 +104,7 @@ class TodoListViewController: UITableViewController {
             if let currentCategory = self.selectedCategory {
                 do {
                     try self.realm.write {
-                        var newItem = Item()
+                        let newItem = Item()
                         newItem.title = textField.text ?? ""
                         currentCategory.items.append(newItem)
                     }
@@ -100,8 +121,7 @@ class TodoListViewController: UITableViewController {
         
     }
     
-    // MARK: R in CRUD operations to Realm DB
-    
+    // MARK: CRUD operations to Realm DB
     
     //Read
     func loadData() {
@@ -109,6 +129,21 @@ class TodoListViewController: UITableViewController {
         tableView.reloadData()
     }
     
+    //Delete
+    override func deleteModel(at indexPath: IndexPath) {
+        
+        super.deleteModel(at: indexPath)
+        
+        if let deletedCategory = self.todoItems?[indexPath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(deletedCategory)
+                }
+            } catch {
+                print("Could not delete category \(error)")
+            }
+        }
+    }
     
 }
 

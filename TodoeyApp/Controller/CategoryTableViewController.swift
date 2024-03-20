@@ -7,9 +7,9 @@
 
 import UIKit
 import RealmSwift
-import SwipeCellKit
+import ChameleonFramework
 
-class CategoryTableViewController: UITableViewController {
+class CategoryTableViewController: SwipeTableViewController {
 
     let realm = try! Realm()
     var categoris: Results<Category>?
@@ -20,6 +20,10 @@ class CategoryTableViewController: UITableViewController {
         loadData()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        guard let navBar = navigationController?.navigationBar else { fatalError("Nav bar is nil at this time point")}
+        navBar.backgroundColor = UIColor(hexString: categoris?[0].bgColor ?? "000000")
+    }
     // MARK: - Table View DataSource
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -29,9 +33,29 @@ class CategoryTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath) as! SwipeTableViewCell
-        cell.delegate = self
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         cell.textLabel?.text = categoris?[indexPath.row].name ?? "No categories added yet"
+        if let bgHexColor = categoris?[indexPath.row].bgColor {
+            if let bgColor = UIColor(hexString: bgHexColor) {
+                cell.backgroundColor = bgColor
+                cell.textLabel?.textColor = ContrastColorOf(bgColor,
+                                                            returnFlat: true)
+            }
+        } else {
+            let bgHexColor = UIColor.randomFlat().hexValue()
+            if let bgColor = UIColor(hexString: bgHexColor) {
+                cell.backgroundColor = bgColor
+                cell.textLabel?.textColor = ContrastColorOf(bgColor,
+                                                            returnFlat: true)
+            }
+            do {
+                try realm.write {
+                    self.categoris?[indexPath.row].bgColor = bgHexColor
+                }
+            } catch {
+                print("Could not update realm \(error)")
+            }
+        }
         
         return cell
     }
@@ -81,7 +105,8 @@ class CategoryTableViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
     }
     
-    
+    // MARK: - Data Manipulation
+    //Create
     func save(category: Category) {
         do {
             try realm.write {
@@ -92,41 +117,27 @@ class CategoryTableViewController: UITableViewController {
         }
         tableView.reloadData()
     }
-    
+    //Read
     func loadData() {
        
         categoris = realm.objects(Category.self)
       
         tableView.reloadData()
     }
-}
-
-
-// MARK: - SwipeTableViewCellDelegate
-
-extension CategoryTableViewController: SwipeTableViewCellDelegate {
-    
-    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath, for orientation: SwipeActionsOrientation) -> [SwipeAction]? {
-        guard orientation == .right else { return nil }
-
-        let deleteAction = SwipeAction(style: .destructive, title: "Delete") { action, indexPath in
-            // handle action by updating model with deletion
-            
-            if let deletedCategory = self.categoris?[indexPath.row] {
-                do {
-                    try self.realm.write {
-                        self.realm.delete(deletedCategory)
-                    }
-                } catch {
-                    print("Could not delete category \(error)")
+    //Delete
+    override func deleteModel(at indexPath: IndexPath) {
+        
+        super.deleteModel(at: indexPath)
+        
+        if let deletedCategory = self.categoris?[indexPath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(deletedCategory)
                 }
-                tableView.reloadData()
+            } catch {
+                print("Could not delete category \(error)")
             }
         }
-
-        // customize the action appearance
-        deleteAction.image = UIImage(named: "delete-icon")
-
-        return [deleteAction]
     }
 }
+

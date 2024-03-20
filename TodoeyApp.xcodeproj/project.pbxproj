@@ -10,6 +10,7 @@
 		0C5F95C32BA54CD40071D6A4 /* CategoryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5F95C22BA54CD40071D6A4 /* CategoryTableViewController.swift */; };
 		0C5F95C52BA9C0B90071D6A4 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5F95C42BA9C0B90071D6A4 /* Item.swift */; };
 		0C5F95C82BA9C9860071D6A4 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5F95C72BA9C9860071D6A4 /* Category.swift */; };
+		0C5F95CA2BAA63790071D6A4 /* SwipeTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5F95C92BAA63790071D6A4 /* SwipeTableViewController.swift */; };
 		0CDB8BAB2B95D72D005BF007 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDB8BAA2B95D72D005BF007 /* AppDelegate.swift */; };
 		0CDB8BAD2B95D72D005BF007 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDB8BAC2B95D72D005BF007 /* SceneDelegate.swift */; };
 		0CDB8BAF2B95D72D005BF007 /* TodoListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CDB8BAE2B95D72D005BF007 /* TodoListViewController.swift */; };
@@ -23,6 +24,7 @@
 		0C5F95C22BA54CD40071D6A4 /* CategoryTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryTableViewController.swift; sourceTree = "<group>"; };
 		0C5F95C42BA9C0B90071D6A4 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 		0C5F95C72BA9C9860071D6A4 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
+		0C5F95C92BAA63790071D6A4 /* SwipeTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeTableViewController.swift; sourceTree = "<group>"; };
 		0CDB8BA72B95D72D005BF007 /* TodoeyApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TodoeyApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0CDB8BAA2B95D72D005BF007 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		0CDB8BAC2B95D72D005BF007 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -61,6 +63,7 @@
 			isa = PBXGroup;
 			children = (
 				0CDB8BAE2B95D72D005BF007 /* TodoListViewController.swift */,
+				0C5F95C92BAA63790071D6A4 /* SwipeTableViewController.swift */,
 				0C5F95C22BA54CD40071D6A4 /* CategoryTableViewController.swift */,
 			);
 			path = Controller;
@@ -242,6 +245,7 @@
 				0C5F95C52BA9C0B90071D6A4 /* Item.swift in Sources */,
 				0CDB8BAF2B95D72D005BF007 /* TodoListViewController.swift in Sources */,
 				0C5F95C32BA54CD40071D6A4 /* CategoryTableViewController.swift in Sources */,
+				0C5F95CA2BAA63790071D6A4 /* SwipeTableViewController.swift in Sources */,
 				0CDB8BAB2B95D72D005BF007 /* AppDelegate.swift in Sources */,
 				0CDB8BAD2B95D72D005BF007 /* SceneDelegate.swift in Sources */,
 				0C5F95C82BA9C9860071D6A4 /* Category.swift in Sources */,
@@ -406,6 +410,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -436,6 +441,7 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
